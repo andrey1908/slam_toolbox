@@ -35,6 +35,8 @@ void AsynchronousSlamToolbox::laserCallback(
   const sensor_msgs::LaserScan::ConstPtr& scan)
 /*****************************************************************************/
 {
+  auto start = std::chrono::high_resolution_clock::now();
+  
   // no odom info
   karto::Pose2 pose;
   if(!pose_helper_->getOdomPose(pose, scan->header.stamp))
@@ -52,7 +54,14 @@ void AsynchronousSlamToolbox::laserCallback(
     return;
   }
 
-  addScan(laser, scan, pose);
+  auto range_scan = addScan(laser, scan, pose);
+  
+  auto stop = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+  if (range_scan != nullptr)
+  {
+    std::cout << "processing time: " << duration.count() / 1000 << " ms" << std::endl;
+  }
   return;
 }
 
